@@ -32,9 +32,9 @@ typedef struct {
 
 
 // GLOBALS
-extern volatile TCB* current_tcb;
+extern volatile TCB* current_tcb; //volatile perché modificato da ISR
 extern TCBList running_queue;
-extern TCB idle_tcb;
+extern TCB idle_tcb;  // TCB processo idle (quello che gira quando non ci sta altro)
 
 // OPS ON TCBList
 TCB*  TCBList_dequeue(TCBList* list);
