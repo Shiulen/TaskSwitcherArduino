@@ -21,6 +21,7 @@ void os_yield(void){
 void startSchedule(void){
     cli();
     if(!running_queue.first) {
+        TCB_create(&idle_tcb, idle_stack + sizeof(idle_stack) - 1, idle_fn, 0);
         TCBList_enqueue(&running_queue, &idle_tcb);
     }
     current_tcb = TCBList_dequeue(&running_queue);
@@ -61,4 +62,8 @@ void timerStart(void){
     TCCR2B = (1<<CS22);
     OCR2A = 249;
     TIMSK2 = (1<<OCIE2A);
+}
+
+ISR(TIMER2_COMPA_vect){
+    schedule();
 }

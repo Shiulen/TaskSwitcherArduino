@@ -54,7 +54,12 @@ void archFirstThreadRestore(TCB* new_tcb);
 void serial_init(uint32_t baud);
 int  serial_putc(char c);
 int  serial_getc(void);
-int  serial_write(const char* s);
+int  serial_write_atomic(const uint8_t* data, uint16_t len);
+int serial_read_atomic(uint8_t* buf, uint16_t len);
+
+
+int serial_write(const char* s);
+int serial_printf_atomic(const char* fmt, ...);
 
 // printf helper (optional)
 void printf_init_uart(void);
