@@ -30,6 +30,15 @@ typedef struct {
   uint8_t size;
 } TCBList;
 
+// MUTEX - simple mutex for blocking synchronization
+typedef struct {
+  TCB* owner;
+  TCBList waitq;
+} OsMutex;
+
+void mutex_init(OsMutex* m);
+void mutex_lock(OsMutex* m);
+void mutex_unlock(OsMutex* m);
 
 // GLOBALS
 extern volatile TCB* current_tcb; //volatile perché modificato da ISR

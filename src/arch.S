@@ -28,8 +28,8 @@ archContextSwitch:
 	push r29
 
 	; Save SP into old_tcb->sp_save_ptr (Y points to old)
-	in r16, __SP_L__
-	in r17, __SP_H__
+	in  r16, _SFR_IO_ADDR(SPL)
+	in  r17, _SFR_IO_ADDR(SPH)
 	mov r28, r24
 	mov r29, r25
 	st  Y,  r16
@@ -40,8 +40,8 @@ archContextSwitch:
 	mov r29, r23
 	ld  r16, Y
 	ldd r17, Y+1
-	out __SP_L__, r16
-	out __SP_H__, r17
+	out _SFR_IO_ADDR(SPL), r16
+	out _SFR_IO_ADDR(SPH), r17
 
 	; Restore regs
 	pop r29
@@ -73,8 +73,8 @@ archFirstThreadRestore:
 	mov r29, r25
 	ld  r16, Y
 	ldd r17, Y+1
-	out __SP_L__, r16
-	out __SP_H__, r17
+    out _SFR_IO_ADDR(SPL), r16
+    out _SFR_IO_ADDR(SPH), r17
 
 	; Restore regs
 	pop r29
