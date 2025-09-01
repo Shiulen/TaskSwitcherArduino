@@ -10,22 +10,19 @@ static void idle_fn(uint32_t arg __attribute__((unused))){
   }
 }
 
+/* code dei task pronti da eseguire */
 TCBList running_queue = {.first=NULL, .last=NULL, .size=0};
 
-void os_yield(void){
-    cli();
-    schedule();
-    sei();
-}
-
+/* avvio scheduler */
 void startSchedule(void){
     cli();
+    /* se coda vuota crea idle */
     if(!running_queue.first) {
         TCB_create(&idle_tcb, idle_stack + sizeof(idle_stack) - 1, idle_fn, 0);
         TCBList_enqueue(&running_queue, &idle_tcb);
     }
-    current_tcb = TCBList_dequeue(&running_queue);
 
+    current_tcb = TCBList_dequeue(&running_queue);
     if(!current_tcb) {
         current_tcb = &idle_tcb;
     }
@@ -38,6 +35,7 @@ void startSchedule(void){
     archFirstThreadRestore((TCB*)current_tcb);
 }
 
+/* corpo dello scheduler */
 void schedule(void) {
     TCB* old = (TCB*)current_tcb;
 
@@ -57,20 +55,20 @@ void schedule(void) {
     }
 }
 
+/* configurazione timer */
 void timerStart(void){
-    TCCR2A = (1<<WGM21);
-    TCCR2B = (1<<CS22);
-    OCR2A = 249;
-    TIMSK2 = (1<<OCIE2A);
+    TCCR2A = (1<<WGM21); // modalità CTC
+    TCCR2B = (1<<CS22); // prescaler 64
+    OCR2A = 249; //valore di confronto per 1ms a 16MHz e prescaler 64
+    TIMSK2 = (1<<OCIE2A); // abilita interrupt confronto
 }
 
+/* chiama scheduler ad ogni tick */
 ISR(TIMER2_COMPA_vect){
     schedule();
 }
 
-
-// Simple mutex implementation
-
+/* funzioni semafori */
 void mutex_init(OsMutex* m){
     m->owner = NULL;
     m->waitq.first = m->waitq.last = NULL;
@@ -84,12 +82,10 @@ void mutex_init(OsMutex* m){
       sei();
       return;
     }
-    /* enqueue and block */
     ((TCB*)current_tcb)->status = Blocked;
     TCBList_enqueue(&m->waitq, (TCB*)current_tcb);
     schedule();
     sei();
-    /* when we return, we are the owner (set in unlock) */
   }
   
   void mutex_unlock(OsMutex* m){

@@ -54,7 +54,6 @@ void TCB_create(TCB* tcb, Pointer stack_top, ThreadFn thread_fn, uint32_t thread
 void startSchedule(void);
 void schedule(void);
 void timerStart(void);
-void os_yield(void);
 
 void archContextSwitch(TCB* old_tcb, TCB* new_tcb);
 void archFirstThreadRestore(TCB* new_tcb);
@@ -65,10 +64,3 @@ int  serial_putc(char c);
 int  serial_getc(void);
 int  serial_write_atomic(const uint8_t* data, uint16_t len);
 int serial_read_atomic(uint8_t* buf, uint16_t len);
-
-
-int serial_write(const char* s);
-int serial_printf_atomic(const char* fmt, ...);
-
-// printf helper (optional)
-void printf_init_uart(void);
