@@ -39,7 +39,7 @@ static void echo_fn(uint32_t arg){
     uint16_t i = 0;
     for(;;){
       int c = serial_getc();                /* byte-level is fine here */
-      if (c == '\r' || i >= sizeof(line)-2){
+      if (c == '\r' || c == '\n' || i >= sizeof(line)-2){
         line[i++] = '\r'; line[i++] = '\n';
         break;
       }
@@ -50,7 +50,7 @@ static void echo_fn(uint32_t arg){
 }
 
 int main(void){
-  serial_init(115200);
+  serial_init(57600);
   printf_init_uart();
 
   TCB_create(&t1_tcb,   t1_stack + sizeof(t1_stack) - 1,   t1_fn,   0);

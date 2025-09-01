@@ -23,8 +23,13 @@ static TCBList uart_tx_wq = {0};
 static OsMutex tx_mutex;
 static OsMutex rx_mutex;
 
-static inline uint8_t rb_inc(uint8_t v, uint8_t sz){ v++; if (v==sz) v=0; return v; }
-static inline uint8_t rb_free_tx(void){
+static uint8_t rb_inc(uint8_t v, uint8_t sz){
+  v++;
+  if (v==sz) v=0;
+  return v;
+}
+
+static uint8_t rb_free_tx(void){
   uint8_t head = tx_head, tail = tx_tail;
   if (head >= tail) return (TX_BUFSZ - (head - tail) - 1);
   else return (tail - head - 1);
