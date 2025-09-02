@@ -1,18 +1,9 @@
-# Minimal preemptive scheduler + UART driver for Arduino Uno (ATmega328P)
-# Build & flash with avr-gcc + avrdude.
-#
-# Usage:
-#   make                # build
-#   make flash PORT=/dev/ttyACM0   # upload (set PORT for your system)
-#   make clean
-
 MCU = atmega328p
 F_CPU = 16000000UL
 BAUD ?= 115200
 
 PORT ?= /dev/ttyACM0
 PROGRAMMER ?= arduino
-# Typical Uno bootloader baudrate is 115200 (old) or 57600 (very old). Adjust if needed.
 AVRDUDE_BAUD ?= 115200
 
 TARGET = uno_os_serial
