@@ -57,10 +57,10 @@ void schedule(void) {
 
 /* configurazione timer */
 void timerStart(void){
-    TCCR2A = (1<<WGM21); // modalità CTC
-    TCCR2B = (1<<CS22); // prescaler 64
-    OCR2A = 249; //valore di confronto per 1ms a 16MHz e prescaler 64
-    TIMSK2 = (1<<OCIE2A); // abilita interrupt confronto
+    TCCR2A = (1<<WGM21);                     // modalità CTC
+    TCCR2B = (1<<CS22) | (1<<CS20);          // prescaler 128
+    OCR2A = 249;                             // valore di confronto per 2ms a 16MHz e prescaler 128
+    TIMSK2 = (1<<OCIE2A);                    // abilita interrupt confronto
 }
 
 /* chiama scheduler ad ogni tick */

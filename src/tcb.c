@@ -1,7 +1,9 @@
 #include "os.h"
+#include <avr/interrupt.h>
 
 volatile TCB* current_tcb = NULL;
 
+/* trampolino chiama entry del thread*/
 static void _trampoline(void){
     sei();
     if(current_tcb && current_tcb->thread_fn){
@@ -12,6 +14,7 @@ static void _trampoline(void){
     schedule();
 }
 
+/* Creazione di un TCB, con preparazione dello stack */
 void TCB_create(TCB* tcb, Pointer stack_top, ThreadFn thread_fn, uint32_t thread_arg){
 
     tcb->thread_fn = thread_fn;
@@ -32,6 +35,7 @@ void TCB_create(TCB* tcb, Pointer stack_top, ThreadFn thread_fn, uint32_t thread
     tcb->sp_save_ptr = sp;
 }
 
+/* accodamento nella lista dei TCB */
 TCB* TCBList_dequeue(TCBList* list){
     TCB* t = list->first;
     if(!t) return NULL;
@@ -51,6 +55,7 @@ TCB* TCBList_dequeue(TCBList* list){
     return t;
 }
 
+/* toglie un determinato TCB dalla lista */
 uint8_t TCBList_enqueue(TCBList* list, TCB* tcb){
     if(tcb->prev!=NULL || tcb->next!=NULL)
         return 0;

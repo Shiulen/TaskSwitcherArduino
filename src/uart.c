@@ -135,7 +135,10 @@ ISR(USART_RX_vect){
   }
   if (uart_rx_wq.size){
     TCB* t = TCBList_dequeue(&uart_rx_wq);
-    if (t){ t->status = Ready; TCBList_enqueue(&running_queue, t); }
+    if (t){
+      t->status = Ready;
+      TCBList_enqueue(&running_queue, t);
+    }
   }
 }
 

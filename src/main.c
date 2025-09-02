@@ -33,30 +33,33 @@ static void t2_fn(uint32_t arg){
 /* Task Echo -> stampa quello che inserisci */
 static void echo_fn(uint32_t arg){
   (void)arg;
-  const uint8_t* msg = (const uint8_t*)"[echo] Echo pronto. Digita e invio.\r\n";
-  serial_write_atomic(msg, sizeof(msg)-1);
+
+  static const uint8_t hello[] = "[echo] Echo pronto. Digita e invio.\r\n";
+  serial_write_atomic(hello, sizeof(hello)-1);
+
+  static const uint8_t prefix[] = "[echo] ";
+  uint8_t line[64];
+  uint8_t out[sizeof(prefix)-1 +64+2]; // prefisso+messaggio+\r\n
+
   for(;;){
-    uint8_t line[64];
 
-    line[0] = '[';
-    line[1] = 'e';
-    line[2] = 'c';
-    line[3] = 'h';
-    line[4] = 'o';
-    line[5] = ']';
-    line[6] = ' ';
-
-    uint16_t i = 7;
+    uint16_t i = 0;
     for(;;){
       int c = serial_getc();
-      if (c == '\r' || c == '\n' || i >= sizeof(line)-2){
-        line[i++] = '\r';
-        line[i++] = '\n';
-        break;
-      }
-      line[i++] = (uint8_t)c;
+      if (c == '\r' || c == '\n') break;
+      if(i<64-2)  line[i++] = (uint8_t)c; // lascia spazio per \r\n
+      else break;
     }
-    serial_write_atomic(line, i);
+
+    uint16_t pos=0;
+    for(uint8_t k=0; k<sizeof(prefix)-1; ++k)
+      out[pos++] = prefix[k];
+    for (uint16_t k=0; k<i; ++k)
+      out[pos++] = line[k];
+    out[pos++] = '\r';
+    out[pos++] = '\n';
+
+    serial_write_atomic(out, pos);
   }
 }
 
