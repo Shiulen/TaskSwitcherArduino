@@ -51,6 +51,8 @@ static void echo_fn(uint32_t arg){
       else break;
     }
 
+    if(i==0) continue; // niente da mandare
+
     uint16_t pos=0;
     for(uint8_t k=0; k<sizeof(prefix)-1; ++k)
       out[pos++] = prefix[k];

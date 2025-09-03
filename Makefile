@@ -1,50 +1,44 @@
-MCU = atmega328p
-F_CPU = 16000000UL
-BAUD ?= 115200
+CC       = avr-gcc
+AS       = avr-gcc
+OBJCOPY  = avr-objcopy
+AVRDUDE  = avrdude
 
-PORT ?= /dev/ttyACM0
-PROGRAMMER ?= arduino
-AVRDUDE_BAUD ?= 115200
+MCU      = atmega328p
+F_CPU    = 16000000UL
 
-TARGET = uno_os_serial
-BUILD = build
-SRC_DIR = src
-INC_DIR = include
+PORT     = /dev/ttyACM0
+BAUD     = 115200
 
-CC = avr-gcc
-OBJCOPY = avr-objcopy
-AVRDUDE = avrdude
+INCLUDE_DIRS = -Iinclude
+CC_OPTS = -Wall -std=gnu11 -DF_CPU=$(F_CPU) -Os -mmcu=$(MCU) $(INCLUDE_DIRS)
+AS_OPTS = -x assembler-with-cpp $(CC_OPTS)
 
-CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os -ffunction-sections -fdata-sections -MMD -MP -Wall -Wextra -std=gnu11 -I$(INC_DIR)
-ASFLAGS = $(CFLAGS)
-LDFLAGS = -Wl,--gc-sections
+OBJS = src/main.o \
+       src/scheduler.o \
+       src/tcb.o \
+       src/uart.o \
+       src/arch.o
 
-SRCS = $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/*.S)
-OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD)/%.o,$(filter %.c,$(SRCS))) \
-       $(patsubst $(SRC_DIR)/%.S,$(BUILD)/%.o,$(filter %.S,$(SRCS)))
-DEPS = $(OBJS:.o=.d)
+BIN  = uno_os_serial.elf
 
-$(BUILD)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) -c $< -o $@
+.PHONY: all clean flash
 
-$(BUILD)/%.o: $(SRC_DIR)/%.S
-	@mkdir -p $(BUILD)
-	$(CC) $(ASFLAGS) -c $< -o $@
+all: $(BIN)
 
-all: $(BUILD)/$(TARGET).hex
+%.o: %.c
+	$(CC) $(CC_OPTS) -c $< -o $@
 
-$(BUILD)/$(TARGET).elf: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+%.o: %.S
+	$(AS) $(AS_OPTS) -c $< -o $@
 
-$(BUILD)/$(TARGET).hex: $(BUILD)/$(TARGET).elf
+%.elf: $(OBJS)
+	$(CC) $(CC_OPTS) -o $@ $^
+
+%.hex: %.elf
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
-	@size $(BUILD)/$(TARGET).elf
 
-flash: $(BUILD)/$(TARGET).hex
-	$(AVRDUDE) -p $(MCU) -c $(PROGRAMMER) -P $(PORT) -b $(AVRDUDE_BAUD) -D -U flash:w:$<:i
+flash: $(BIN:.elf=.hex)
+	$(AVRDUDE) -p m328p -c arduino -P $(PORT) -b $(BAUD) -U flash:w:$<:i
 
 clean:
-	rm -rf $(BUILD)
-
--include $(DEPS)
+	rm -f $(OBJS) $(BIN) *.hex *~ 

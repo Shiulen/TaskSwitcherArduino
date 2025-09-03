@@ -35,7 +35,7 @@ void TCB_create(TCB* tcb, Pointer stack_top, ThreadFn thread_fn, uint32_t thread
     tcb->sp_save_ptr = sp;
 }
 
-/* accodamento nella lista dei TCB */
+/* toglie un determinato TCB dalla lista */
 TCB* TCBList_dequeue(TCBList* list){
     TCB* t = list->first;
     if(!t) return NULL;
@@ -55,7 +55,7 @@ TCB* TCBList_dequeue(TCBList* list){
     return t;
 }
 
-/* toglie un determinato TCB dalla lista */
+/* accodamento nella lista dei TCB */
 uint8_t TCBList_enqueue(TCBList* list, TCB* tcb){
     if(tcb->prev!=NULL || tcb->next!=NULL)
         return 0;

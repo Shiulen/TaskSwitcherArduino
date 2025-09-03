@@ -69,7 +69,7 @@ ISR(TIMER2_COMPA_vect){
 }
 
 /* funzioni semafori */
-void mutex_init(OsMutex* m){
+  void mutex_init(OsMutex* m){
     m->owner = NULL;
     m->waitq.first = m->waitq.last = NULL;
     m->waitq.size = 0;
